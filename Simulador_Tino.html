@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SIMULADOR GD TINO ENERGIA</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="container">
+    <h2>SIMULADOR DE DESCONTO - TINO ENERGIA - GERAÇÃO DISTRIBUÍDA</h2>
+    <form id="simulador-form">
+
+      <fieldset>
+        <legend>Dados do Cliente</legend>
+
+        <div class="radio-tipo-consumidor">
+          <p><strong>Tipo de Consumidor:</strong></p>
+          <label><input type="radio" name="tipo_consumidor" value="A1" required> A1 (≥ 230 kV)</label>
+          <label><input type="radio" name="tipo_consumidor" value="A2" required> A2 (88 a 138 kV)</label>
+          <label><input type="radio" name="tipo_consumidor" value="A3" required> A3 (69 kV)</label>
+          <label><input type="radio" name="tipo_consumidor" value="A3a" required> A3a (30 a 44 kV)</label>
+          <label><input type="radio" name="tipo_consumidor" value="A4" required> A4 (2,3 a 25 kV)</label>
+          <label><input type="radio" name="tipo_consumidor" value="AS" required> AS (Subterrâneo)</label>
+          <label><input type="radio" name="tipo_consumidor" value="B1" required checked> B1 (Residencial)</label>
+          <label><input type="radio" name="tipo_consumidor" value="B2" required> B2 (Rural)</label>
+          <label><input type="radio" name="tipo_consumidor" value="B3" required> B3 (Demais Classes)</label>
+          <label><input type="radio" name="tipo_consumidor" value="B4" required> B4 (Ilum Pública)</label>
+          <label><input type="radio" name="tipo_consumidor" value="B-Optante" required> B-Optante</label>
+        </div>
+
+        <div class="radio-classe-instalacao">
+          <p><strong>Classe da Instalação:</strong></p>
+          <label><input type="radio" name="classe_instalacao" value="Monofásica" id="classe_monofasico" required> Monofásica</label>
+          <label><input type="radio" name="classe_instalacao" value="Bifásica" id="classe_bifasico" required> Bifásica</label>
+          <label><input type="radio" name="classe_instalacao" value="Trifásica" id="classe_trifasico" required> Trifásica</label>
+        </div>
+
+        <div class="checkbox-baixa-renda">
+        <label for="baixa_renda"><strong>Cliente Baixa Renda?</strong></label>
+        <select name="baixa_renda" id="baixa_renda">
+            <option value="nao">NÃO</option>
+            <option value="sim">SIM</option>
+        </select>
+        </div>
+
+        <label>Nome do Cliente
+          <input type="text" name="cliente" id="cliente" required>
+        </label>
+
+        <label>CPF ou CNPJ
+          <input type="text" name="cpf_cnpj" id="cpf_cnpj" required>
+        </label>
+
+        <label>Código de Instalação
+          <input type="text" name="codigo_instalacao" id="codigo_instalacao" required>
+        </label>
+
+        <label>Código do Cliente
+          <input type="text" name="codigo_cliente" id ="codigo_cliente" required>
+        </label>
+
+        <div class="checkbox-aderiu-gd">
+            <p><strong>Análise de saldo:</strong></p>
+            <label><input type="checkbox" id="adesao_gd" name="adesao_gd"> Cliente já aderiu à GD</label>
+            <label><input type="checkbox" id="autoconsumo" name="autoconsumo"> Autoconsumo</label>
+            <label><input type="checkbox" id="excedente" name="excedente"> Saldo Excedente</label>
+        </div>
+
+        <div class="campo-saldo-energia">    
+            <label>Saldo de Energia (kWh)
+            <input type="number" name="saldo_energia" step="0.01" value="0">
+            </label>
+        </div>
+        </fieldset>
+
+      <fieldset>
+        <legend>Dados de Consumo</legend>
+
+        <label>Consumo do mês (kWh)
+          <input type="number" name="consumo" step="0.01" id="consumo" required>
+        </label>
+
+        <label>Consumo Reativo (kVArh)
+          <input type="number" name="consumo_reativo" step="0.01" id="reativo" value="0">
+        </label>
+
+        <label>TE (R$/kWh)
+          <input type="number" name="te" step="0.000001" id="te" required>
+        </label>
+
+        <label>TUSD (R$/kWh)
+          <input type="number" name="tusd" step="0.000001" id="tusd" required>
+        </label>
+
+        <label>Bandeira Amarela (R$/kWh)
+          <input type="number" name="bandeira_amarela" step="0.000001" value="0" id="bandeira_amarela" required>
+        </label>
+
+        <label>Bandeira Vermelha (R$/kWh)
+          <input type="number" name="bandeira_vermelha" step="0.000001" value="0" id="bandeira_vermelha" required>
+        </label>
+
+        <label>Taxa de Iluminação Pública (R$)
+          <input type="number" name="iluminacao" step="0.01" value="0" id="iluminacao">
+        </label>
+
+        <label>Multa (R$)
+          <input type="number" name="multa" step="0.01" value="0" id="multa">
+        </label>
+
+        <label>Juros (R$)
+          <input type="number" name="juros" step="0.01" value="0" id="juros">
+        </label>
+
+        <label>Correção Monetária (R$)
+          <input type="number" name="correcao" step="0.01" value="0" id="correcao">
+        </label>
+
+        <label>Doações (R$)
+          <input type="number" name="doacoes" step="0.01" value="0" id="doacoes">
+        </label>
+
+        <label>Encargos (R$)
+          <input type="number" name="encargos" step="0.01" value="0" id="encargos">
+        </label>
+
+        <label>DMIC (R$)
+          <input type="number" name="dmic" step="0.01" value="0" id="dmic">
+        </label>
+
+        <label>Abatimentos (R$)
+          <input type="number" name="descontos" step="0.01" value="0" id="descontos">
+        </label>
+
+        <label>Desconto (%) sobre consumo
+          <input type="number" name="desconto_percentual" step="0.01" value="15" id="desconto_percentual" required>
+        </label>
+
+      </fieldset>
+
+      <button id="simular" type="submit">SIMULAR</button>
+      
+      <div class="export-buttons">
+        <button id="exportar-json" type="button">Exportar JSON</button>
+        <button id="exportar-csv" type="button">Exportar CSV</button>
+      </div>
+    </form>
+        <div id="resultado" class="resultado-simulacao" style="display: none;">
+            <!-- Os dados serão preenchidos dinamicamente via JS -->
+        </div>
+  </div>
+
+<footer>
+<p>&copy; 2023 Tino Energia. Todos os direitos reservados.</p>
+</footer>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+<script src="script.js" defer></script>
+</body>
+
+</html>
