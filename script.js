@@ -1,10 +1,5 @@
 console.log("Script carregado.");
 
-if (!db) {
-    console.error("Banco de dados não inicializado ainda.");
-    return;
-}
-
 // Inicialização do IndexedDB
 let db;
 let dbReady = false;
@@ -16,6 +11,7 @@ function initDB() {
     };
     request.onsuccess = function (event) {
         db = event.target.result;
+        dbReady = true;  // ✅ MARCA QUE ESTÁ PRONTO
         console.log("Banco de dados aberto com sucesso.");
     };
     request.onupgradeneeded = function (event) {
@@ -29,6 +25,10 @@ initDB();
 
 // Função para listar todas as simulações
 function listarSimulacoes(callback) {
+    if (!dbReady) {
+        console.error("Banco de dados não está pronto.");
+        return;
+    }
     const transaction = db.transaction(["clientes"], "readonly");
     const store = transaction.objectStore("clientes");
     const request = store.getAll();
@@ -123,33 +123,38 @@ valorTaxaDisponibilidade;
   const resultado = document.getElementById("resultado");
   resultado.innerHTML = `
       <p><strong>Sua simulação está pronta, ${nomeCliente}!</strong></p>
-      <p>Atualmente, a concessionária cobra <strong>R$ ${valorConcessionaria.toFixed(2)}/kWh</strong> de você.</p>
-      <p>Você está pagando <strong>R$ ${valorSemDesconto.toFixed(2)}/kWh</strong> pelo seu consumo nessa fatura.</p>
-      <p>Com a Tino Energia, você passa a pagar <strong>R$ ${valorTino.toFixed(2)}/kWh</strong> no seu consumo de energia!</p>
-      <p>Economize com a gente, pagando apenas <strong>R$ ${consumoTino.toFixed(2)}/kWh</strong>!</p>
+      <p>Atualmente, a concessionária cobra <strong>R$ ${valorConcessionaria.toFixed(2)}/kWh</strong>. Você paga <strong>R$ ${valorSemDesconto.toFixed(2)}/kWh</strong> pelo seu consumo nessa fatura.</p>
+      <p>Com a Tino Energia, o preço passa a ser <strong>R$ ${valorTino.toFixed(2)}/kWh</strong>! Economize com a gente, pagando apenas <strong>R$ ${consumoTino.toFixed(2)}!</strong></p>
       <p>Confira sua economia abaixo:</p>
 
       <table>
         <thead>
           <tr>
-            <th>Item</th>
+            <th>Descrição</th>
             <th>Valor (R$)</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Consumo compensável</td><td>${consumoCompensavel.toFixed(2)} kWh</td></tr>
-          <tr><td>Consumo pela Tino</td><td>R$ ${consumoTino.toFixed(2)}</td></tr>
+          <tr><td>Energia compensada</td><td>${consumoCompensavel.toFixed(2)} kWh</td></tr>
+          <tr><td><strong>Consumo pela Tino</strong></td><td><strong>R$ ${consumoTino.toFixed(2)}</strong></td></tr>
           <tr><td>Economia mensal</td><td>R$ ${descontoFaturaMes.toFixed(2)}</td></tr>
           <tr><td>Economia anual estimada</td><td>R$ ${descontoAnual.toFixed(2)}</td></tr>
         </tbody>
       </table>
 
-      <p>⚠️ Os demais valores fornecidos continuarão sendo cobrados pela concessionária (iluminação pública, multas, encargos, juros, doações, etc).</p>
+      <p>⚠️ ATENÇÃO! Sua concessionária continuará cobrando valores fixos (iluminação pública, multas, encargos, juros, doações, etc).</p>
       <p><strong>Taxa de disponibilidade da concessionária conforme legislação:</strong> ${taxaDisponibilidadeKwh} kWh → R$ ${valorTaxaDisponibilidade.toFixed(2)}</p>
-      <p><strong>Valores fixos estimados a serem pagos à concessionária (Iluminação Pública, parcelamentos, doações e encargos):</strong> R$ ${valorFixoConcessionaria.toFixed(2)}</p>
+      <p><strong>Valores fixos estimados a serem pagos à concessionária:</strong> R$ ${valorFixoConcessionaria.toFixed(2)}</p>
       <p><strong>Total remanescente a ser pago à concessionária:</strong> R$ (${valorFixoConcessionaria.toFixed(2)}+${valorTaxaDisponibilidade.toFixed(2)}) = ${valorFixoFinal.toFixed(2)}</p>
+      <button id="nova-simulacao">Nova Simulação</button>
   `
-  document.getElementById("resultado").style.display = "block";;
+  document.getElementById("nova-simulacao").addEventListener("click", function() {
+    document.getElementById("simulador-form").style.display = "block";
+    document.getElementById("resultado").style.display = "none";
+    this.remove();  // ou this.style.display = "none"; se preferir
+    });
+  document.getElementById("resultado").style.display = "block";
+  document.getElementById("simulador-form").style.display = "none";
 
   const dadosSimulacao = {
   nomeCliente: document.getElementById("cliente").value,
@@ -159,23 +164,12 @@ valorTaxaDisponibilidade;
   classe: classe,
   consumo: consumo,
   data: new Date().toISOString()
-};
-
-salvarSimulacao(dadosSimulacao);
-
-// Função para salvar simulações
-function salvarSimulacao(dados) {
-    const transaction = db.transaction(["clientes"], "readwrite");
-    const store = transaction.objectStore("clientes");
-    const request = store.add(dados);
-    request.onsuccess = function () {
-        console.log("Simulação salva com sucesso no IndexedDB.");
     };
-    request.onerror = function (event) {
-        console.error("Erro ao salvar a simulação:", event);
-    };
-}
-
+    
+    if (!dbReady) {
+    alert("Banco de dados ainda não está pronto. Tente novamente em alguns segundos.");
+    return;
+    }
 });
 
 // Exportar simulações como CSV
@@ -214,7 +208,12 @@ function exportarSimulacoesParaCSV() {
     });
 }
 
+// Função para salvar simulações
 function salvarSimulacao(dados) {
+    if (!dbReady) {
+        console.error("Banco de dados não está pronto.");
+        return;
+    }
     const transaction = db.transaction(["clientes"], "readwrite");
     const store = transaction.objectStore("clientes");
     const request = store.add(dados);
@@ -226,5 +225,54 @@ function salvarSimulacao(dados) {
     };
 }
 
+function verHistoricoSimulacoes() {
+    if (!dbReady) {
+        alert("Banco de dados ainda não está pronto. Tente novamente em alguns segundos.");
+        return;
+    }
+
+    listarSimulacoes(function (dados) {
+        const historicoDiv = document.getElementById("historico");
+        historicoDiv.innerHTML = "";
+
+        if (dados.length === 0) {
+            historicoDiv.innerHTML = "<p>Nenhuma simulação registrada.</p>";
+        } else {
+            const lista = document.createElement("ul");
+            lista.style.listStyleType = "none";
+            lista.style.padding = "0";
+
+            dados.forEach(sim => {
+                const item = document.createElement("li");
+                item.style.border = "1px solid #ccc";
+                item.style.margin = "8px 0";
+                item.style.padding = "8px";
+                item.style.borderRadius = "4px";
+
+                item.innerHTML = `
+                    <strong>Nome:</strong> ${sim.nomeCliente} <br>
+                    <strong>CPF/CNPJ:</strong> ${sim.cpfCnpj} <br>
+                    <strong>Código Instalação:</strong> ${sim.codigoInstalacao} <br>
+                    <strong>Código Cliente:</strong> ${sim.codigoCliente} <br>
+                    <strong>Classe:</strong> ${sim.classe} <br>
+                    <strong>Consumo:</strong> ${sim.consumo} kWh <br>
+                    <strong>Data:</strong> ${new Date(sim.data).toLocaleString()}
+                `;
+                lista.appendChild(item);
+            });
+
+            historicoDiv.appendChild(lista);
+        }
+
+        // ✅ Toggle display
+        if (historicoDiv.style.display === "none" || historicoDiv.style.display === "") {
+            historicoDiv.style.display = "block";
+        } else {
+            historicoDiv.style.display = "none";
+        }
+    });
+}
+
 document.getElementById("exportar-json").addEventListener("click", exportarSimulacoesParaJSON);
 document.getElementById("exportar-csv").addEventListener("click", exportarSimulacoesParaCSV);
+document.getElementById("ver-historico").addEventListener("click", verHistoricoSimulacoes);
