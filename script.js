@@ -149,10 +149,11 @@ valorTaxaDisponibilidade;
       <button id="nova-simulacao">Nova Simulação</button>
   `
   document.getElementById("nova-simulacao").addEventListener("click", function() {
+    document.getElementById("simulador-form").reset();  // ✅ limpa todos os campos!
     document.getElementById("simulador-form").style.display = "block";
     document.getElementById("resultado").style.display = "none";
-    this.remove();  // ou this.style.display = "none"; se preferir
-    });
+    this.remove();  // ou this.style.display = "none";
+});
   document.getElementById("resultado").style.display = "block";
   document.getElementById("simulador-form").style.display = "none";
 
@@ -170,6 +171,7 @@ valorTaxaDisponibilidade;
     alert("Banco de dados ainda não está pronto. Tente novamente em alguns segundos.");
     return;
     }
+    salvarSimulacao(dadosSimulacao);
 });
 
 // Exportar simulações como CSV
